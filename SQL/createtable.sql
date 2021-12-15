@@ -1,5 +1,5 @@
 create table if not exists bookstoredb.users(
-	ID integer auto_increment primary key,
+	ID integer primary key not null auto_increment,
 	firstname varchar(255) not null,
     lastname varchar(255) not null,
     age integer not null,
