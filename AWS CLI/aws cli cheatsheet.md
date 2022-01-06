@@ -70,60 +70,6 @@ join # combine rows of text, by initial column value
 <br/><br/><br/>
 
 
-
-
-
-## Cloudtrail - Logging and Auditing
-
-http://docs.aws.amazon.com/cli/latest/reference/cloudtrail/
-5 Trails total, with support for resource level permissions
-
-```shell
-# list all trails
-aws cloudtrail describe-trails
-
-# list all S3 buckets
-aws s3 ls
-
-# create a new trail
-aws cloudtrail create-subscription \
-    --name awslog \
-    --s3-new-bucket awslog2016
-
-# list the names of all trails
-aws cloudtrail describe-trails --output text | cut -f 8
-
-# get the status of a trail
-aws cloudtrail get-trail-status \
-    --name awslog
-
-# delete a trail
-aws cloudtrail delete-trail \
-    --name awslog
-
-# delete the S3 bucket of a trail
-aws s3 rb s3://awslog2016 --force
-
-# add tags to a trail, up to 10 tags
-aws cloudtrail add-tags \
-    --resource-id awslog \
-    --tags-list "Key=log-type,Value=all"
-
-# list the tags of a trail
-aws cloudtrail list-tags \
-    --resource-id-list 
-
-# remove a tag from a trail
-aws cloudtrail remove-tags \
-    --resource-id awslog \
-    --tags-list "Key=log-type,Value=all"
-```
-<br/><br/><br/>
-
-
-
-
-
 ## IAM
 
 ### Users
@@ -308,7 +254,6 @@ aws iam delete-group \
 
 
 
-
 ## S3
 
 https://docs.aws.amazon.com/cli/latest/reference/s3api/index.html#cli-aws-s3api
@@ -343,12 +288,12 @@ aws s3api list-buckets --query 'Buckets[*].[Name]' --output text | xargs -I {} b
 
 
 
-
 ## EC2
 
-### keypairs
+### keypairs and Instances
 
 http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
+http://docs.aws.amazon.com/cli/latest/reference/ec2/index.html
 
 ```shell
 # list all keypairs
@@ -373,9 +318,46 @@ aws ec2 import-key-pair \
 # http://docs.aws.amazon.com/cli/latest/reference/ec2/delete-key-pair.html
 aws ec2 delete-key-pair \
     --key-name <value>
+
+# list all instances (running, and not running)
+# http://docs.aws.amazon.com/cli/latest/reference/ec2/describe-instances.html
+aws ec2 describe-instances
+
+# list all instances running
+aws ec2 describe-instances --filters Name=instance-state-name,Values=running
+
+# create a new instance
+# http://docs.aws.amazon.com/cli/latest/reference/ec2/run-instances.html
+aws ec2 run-instances \
+    --image-id ami-f0e7d19a \   
+    --instance-type t2.micro \
+    --security-group-ids sg-00000000 \
+    --dry-run
+
+# start an instance
+aws ec2 start-instances --instance-ids i-12345678c
+
+# stop an instance
+# http://docs.aws.amazon.com/cli/latest/reference/ec2/terminate-instances.html
+aws ec2 terminate-instances \
+    --instance-ids <instance_id>
+
+# list status of all instances
+# http://docs.aws.amazon.com/cli/latest/reference/ec2/describe-instance-status.html
+aws ec2 describe-instance-status
+
+# list status of a specific instance
+aws ec2 describe-instance-status \
+    --instance-ids <instance_id>
+    
+# list all running instance, Name tag and Public IP Address
+aws ec2 describe-instances \
+  --filters Name=instance-state-name,Values=running \
+  --query 'Reservations[].Instances[].[PublicIpAddress, Tags[?Key==`Name`].Value | [0] ]' \
+  --output text | sort -k2
 ```
 
-
+<br/><br/><br/>
 
 
 ### Security Groups
@@ -445,46 +427,6 @@ aws ec2 deregister-image --image-id ami-00000000
 ```
 
 
-## Instances
-
-http://docs.aws.amazon.com/cli/latest/reference/ec2/index.html
-
-```shell
-# list all instances (running, and not running)
-# http://docs.aws.amazon.com/cli/latest/reference/ec2/describe-instances.html
-aws ec2 describe-instances
-
-# list all instances running
-aws ec2 describe-instances --filters Name=instance-state-name,Values=running
-
-# create a new instance
-# http://docs.aws.amazon.com/cli/latest/reference/ec2/run-instances.html
-aws ec2 run-instances \
-    --image-id ami-f0e7d19a \	
-    --instance-type t2.micro \
-    --security-group-ids sg-00000000 \
-    --dry-run
-
-# stop an instance
-# http://docs.aws.amazon.com/cli/latest/reference/ec2/terminate-instances.html
-aws ec2 terminate-instances \
-    --instance-ids <instance_id>
-
-# list status of all instances
-# http://docs.aws.amazon.com/cli/latest/reference/ec2/describe-instance-status.html
-aws ec2 describe-instance-status
-
-# list status of a specific instance
-aws ec2 describe-instance-status \
-    --instance-ids <instance_id>
-    
-# list all running instance, Name tag and Public IP Address
-aws ec2 describe-instances \
-  --filters Name=instance-state-name,Values=running \
-  --query 'Reservations[].Instances[].[PublicIpAddress, Tags[?Key==`Name`].Value | [0] ]' \
-  --output text | sort -k2
-```
-
 
 
 ### Tags
@@ -507,12 +449,56 @@ aws ec2 delete-tags \
 ```
 <br/><br/><br/>
 
+## Cloudtrail - Logging and Auditing
 
+http://docs.aws.amazon.com/cli/latest/reference/cloudtrail/
+
+
+```shell
+# list all trails
+aws cloudtrail describe-trails
+
+# create a new trail
+aws cloudtrail create-subscription \
+    --name awslog \
+    --s3-new-bucket awslog2016
+
+# list the names of all trails
+aws cloudtrail describe-trails --output text | cut -f 8
+
+# get the status of a trail
+aws cloudtrail get-trail-status \
+    --name awslog
+
+# delete a trail
+aws cloudtrail delete-trail \
+    --name awslog
+
+# delete the S3 bucket of a trail
+aws s3 rb s3://awslog2016 --force
+
+# add tags to a trail, up to 10 tags
+aws cloudtrail add-tags \
+    --resource-id awslog \
+    --tags-list "Key=log-type,Value=all"
+
+# list the tags of a trail
+aws cloudtrail list-tags \
+    --resource-id-list 
+
+# remove a tag from a trail
+aws cloudtrail remove-tags \
+    --resource-id awslog \
+    --tags-list "Key=log-type,Value=all"
+```
+<br/><br/><br/>
 
 
 
 ## Cloudwatch
 
+## Cloudwatch - Monitoring
+http://docs.aws.amazon.com/cli/latest/reference/cloudwatch/index.html
 
 ### Log Groups
 http://docs.aws.amazon.com/AmazonCloudWatch/latest/DeveloperGuide/WhatIsCloudWatchLogs.html
@@ -573,5 +559,4 @@ aws logs delete-log-stream \
 
 
 
-## Cloudwatch - Monitoring
-http://docs.aws.amazon.com/cli/latest/reference/cloudwatch/index.html
+
