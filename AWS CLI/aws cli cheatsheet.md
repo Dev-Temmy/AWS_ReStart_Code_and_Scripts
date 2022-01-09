@@ -262,18 +262,76 @@ https://docs.aws.amazon.com/cli/latest/reference/s3api/index.html#cli-aws-s3api
 # list existing S3 buckets
 aws s3 ls
 
+# List a bucket information
+aws s3 ls s3://bucket-name
+
+# Create a bucket - simple syntax
+aws s3 mb <target> [--options]
+Example: aws s3 mb s3://bucket-name
+
 # create a bucket name, using the current date timestamp
 bucket_name=test_$(date "+%Y-%m-%d_%H-%M-%S")
 echo $bucket_name
 
 # create a public facing bucket
 aws s3api create-bucket --acl "public-read-write" --bucket $bucket_name
+aws s3 sync . s3://my-bucket/path --acl public-read  #synchronize local object to the bucket and enable public-read
 
 # verify bucket was created
 aws s3 ls | grep $bucket_name
 
-# check for public facing s3 buckets (should show the bucket name you created)
+# Delete a bucket
+aws s3 rb <target> [--options]
+Example: 
+aws s3 rb s3://bucket-name
+aws s3 rb s3://bucket-name --force
+aws s3 rm s3://my-bucket/path --recursive
 
+# Delete object in bucket
+aws s3 rm  <target> [--options]
+Example:
+aws s3 rm s3://bucket-name/example/filename.txt --recursive
+aws s3 rm s3://bucket-name/example --recursive
+
+# Move objects
+aws s3 mv <source> <target> [--options]
+Example: 
+aws s3 mv s3://bucket-name/example s3://my-bucket/
+aws s3 mv filename.txt s3://bucket-name
+aws s3 mv s3://bucket-name/filename.txt ./
+
+# Copy objects
+aws s3 cp <source> <target> [--options]
+aws s3 cp - <target> [--options]
+aws s3 cp <target> [--options] -
+Example: 
+aws s3 cp s3://bucket-name/example s3://my-bucket/
+aws s3 cp filename.txt s3://bucket-name
+aws s3 cp s3://bucket-name/filename.txt ./
+echo "hello world" | aws s3 cp - s3://bucket-name/filename.txt
+aws s3 cp s3://bucket-name/filename.txt -
+aws s3 cp s3://bucket-name/pre - | bzip2 --best | aws s3 cp - s3://bucket-name/key.bz2
+aws s3 cp file.txt s3://my-bucket/ --storage-class REDUCED_REDUNDANCY
+aws s3 cp file.txt s3://my-bucket/ --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers full=emailaddress=user@example.com
+# Exclude all .txt files, resulting in only MyFile2.rtf being copied
+$ aws s3 cp . s3://my-bucket/path --exclude "*.txt"
+
+# Exclude all .txt files but include all files with the "MyFile*.txt" format, resulting in, MyFile1.txt, MyFile2.rtf, MyFile88.txt being copied
+$ aws s3 cp . s3://my-bucket/path --exclude "*.txt" --include "MyFile*.txt"
+
+# Exclude all .txt files, but include all files with the "MyFile*.txt" format, but exclude all files with the "MyFile?.txt" format resulting in, MyFile2.rtf and MyFile88.txt being copied
+$ aws s3 cp . s3://my-bucket/path --exclude "*.txt" --include "MyFile*.txt" --exclude "MyFile?.txt"
+
+# Include all .txt files, resulting in MyFile1.txt and MyFile88.txt being copied
+$ aws s3 cp . s3://my-bucket/path --include "*.txt"
+
+# Include all .txt files but exclude all files with the "MyFile*.txt" format, resulting in no files being copied
+$ aws s3 cp . s3://my-bucket/path --include "*.txt" --exclude "MyFile*.txt"
+
+# Include all .txt files, but exclude all files with the "MyFile*.txt" format, but include all files with the "MyFile?.txt" format resulting in MyFile1.txt being copied
+$ aws s3 cp . s3://my-bucket/path --include "*.txt" --exclude "MyFile*.txt" --include "MyFile?.txt"
+
+# check for public facing s3 buckets (should show the bucket name you created)
 aws s3api list-buckets --query 'Buckets[*].[Name]' --output text | xargs -I {} bash -c 'if [[ $(aws s3api get-bucket-acl --bucket {} --query '"'"'Grants[?Grantee.URI==`http://acs.amazonaws.com/groups/global/AllUsers` && Permission==`READ`]'"'"' --output text) ]]; then echo {} ; fi'
 
 # check for public facing s3 buckets, updated them to be private
@@ -283,6 +341,8 @@ aws s3api list-buckets --query 'Buckets[*].[Name]' --output text | xargs -I {} b
 # check for public facing s3 buckets (should be empty)
 
 aws s3api list-buckets --query 'Buckets[*].[Name]' --output text | xargs -I {} bash -c 'if [[ $(aws s3api get-bucket-acl --bucket {} --query '"'"'Grants[?Grantee.URI==`http://acs.amazonaws.com/groups/global/AllUsers` && Permission==`READ`]'"'"' --output text) ]]; then echo {} ; fi'
+
+#
 ```
 
 
