@@ -1,42 +1,7 @@
 # AWS CLI Cheatsheet
 
 http://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html
-https://www.youtube.com/watch?v=_wiGpBQGCjU
 
-
-
-
-
-## Setup
-
-### Overview
-- Virtualbox
-- Ubuntu 14.04 LTS VM, 64-bit
-http://releases.ubuntu.com/14.04/ubuntu-14.04.4-desktop-amd64.iso
-- create new machine, settings
-  - System / Processor
-    - Enable PAE/NX
-  - System / Acceleration
-    - Paravirtualization Interface: Default
-    - Enable VT-x/AMD-V
-    - Enable Nested Paging
-  - Display / Screen
-    - Video Memory: 128MB
-    - Acceleration: Enable 3D Acceleration
-- boot
-- install
-
-### install Virtualbox Guest Additions, passwordless sudo
-```shell
-echo $USER
-sudo echo "$USER ALL=(ALL) NOPASSWD:ALL" | sudo tee -a /etc/sudoers
-sudo su
-apt-get update
-apt-get install -y build-essential dkms linux-headers-$(uname -r)
-cd /media/aws-admin/
-sh ./VBoxLinuxAdditions.run
-shutdown now
-```
 
 ### install AWS CLI
 ```shell
@@ -67,7 +32,6 @@ uniq # show only unique entries
 paste # combine rows of text, by line
 join # combine rows of text, by initial column value
 ```
-<br/><br/><br/>
 
 
 ## IAM
@@ -118,12 +82,9 @@ aws iam delete-user \
 # delete all users
 # allUsers=$(aws iam list-users --output text | cut -f 6);
 allUsers=$(cat ./user-names.txt)
-for userName in $allUsers; do
-    aws iam delete-user \
-        --user-name $userName
+for userName in $allUsers; do aws iam delete-user --user-name $userName
 done
 ```
-
 
 
 ### Password policy
@@ -137,12 +98,12 @@ aws iam get-account-password-policy
 
 # set policy
 # http://docs.aws.amazon.com/cli/latest/reference/iam/update-account-password-policy.html
-aws iam update-account-password-policy \
-	--minimum-password-length 12 \
-	--require-symbols \
-	--require-numbers \
-	--require-uppercase-characters \
-	--require-lowercase-characters \
+aws iam update-account-password-policy 
+	--minimum-password-length 12 
+	--require-symbols 
+	--require-numbers 
+	--require-uppercase-characters 
+	--require-lowercase-characters 
 	--allow-users-to-change-password
 
 # delete policy
@@ -161,28 +122,19 @@ http://docs.aws.amazon.com/cli/latest/reference/iam/
 aws iam list-access-keys
 
 # list access keys of a specific user
-aws iam list-access-keys \
-    --user-name aws-admin2
+aws iam list-access-keys --user-name aws-admin2
 
 # create a new access key
-aws iam create-access-key \
-    --user-name aws-admin2 \
-    --output text | tee aws-admin2.txt
+aws iam create-access-key --user-name aws-admin2 --output text | tee aws-admin2.txt
 
 # list last access time of an access key
-aws iam get-access-key-last-used \
-    --access-key-id AKIAINA6AJZY4EXAMPLE
+aws iam get-access-key-last-used --access-key-id AKIAINA6AJZY4EXAMPLE
 
 # deactivate an acccss key
-aws iam update-access-key \
-    --access-key-id AKIAI44QH8DHBEXAMPLE \
-    --status Inactive \
-    --user-name aws-admin2
+aws iam update-access-key --access-key-id AKIAI44QH8DHBEXAMPLE --status Inactive --user-name aws-admin2
 
 # delete an access key
-aws iam delete-access-key \
-    --access-key-id AKIAI44QH8DHBEXAMPLE \
-    --user-name aws-admin2
+aws iam delete-access-key --access-key-id AKIAI44QH8DHBEXAMPLE --user-name aws-admin2
 ```
 
 
@@ -200,55 +152,40 @@ aws iam list-groups
 aws iam create-group --group-name FullAdmins
 
 # delete a group
-aws iam delete-group \
-    --group-name FullAdmins
+aws iam delete-group --group-name FullAdmins
 
 # list all policies
 aws iam list-policies
 
 # get a specific policy
-aws iam get-policy \
-    --policy-arn <value>
+aws iam get-policy --policy-arn <value>
 
 # list all users, groups, and roles, for a given policy
-aws iam list-entities-for-policy \
-    --policy-arn <value>
+aws iam list-entities-for-policy --policy-arn <value>
 
 # list policies, for a given group
-aws iam list-attached-group-policies \
-    --group-name FullAdmins
+aws iam list-attached-group-policies --group-name FullAdmins
 
 # add a policy to a group
-aws iam attach-group-policy \
-    --group-name FullAdmins \
-    --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
+aws iam attach-group-policy --group-name FullAdmins  --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
 
 # add a user to a group
-aws iam add-user-to-group \
-    --group-name FullAdmins \
-    --user-name aws-admin2
+aws iam add-user-to-group --group-name FullAdmins --user-name aws-admin2
 
 # list users, for a given group
-aws iam get-group \
-    --group-name FullAdmins
+aws iam get-group --group-name FullAdmins
 
 # list groups, for a given user
-aws iam list-groups-for-user \
-    --user-name aws-admin2
+aws iam list-groups-for-user --user-name aws-admin2
 
 # remove a user from a group
-aws iam remove-user-from-group \
-    --group-name FullAdmins \
-    --user-name aws-admin2
+aws iam remove-user-from-group --group-name FullAdmins --user-name aws-admin2
 
 # remove a policy from a group
-aws iam detach-group-policy \
-    --group-name FullAdmins \
-    --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
+aws iam detach-group-policy --group-name FullAdmins --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
 
 # delete a group
-aws iam delete-group \
-    --group-name FullAdmins
+aws iam delete-group --group-name FullAdmins
 ```
 <br/><br/><br/>
 
@@ -342,7 +279,8 @@ aws s3api list-buckets --query 'Buckets[*].[Name]' --output text | xargs -I {} b
 
 aws s3api list-buckets --query 'Buckets[*].[Name]' --output text | xargs -I {} bash -c 'if [[ $(aws s3api get-bucket-acl --bucket {} --query '"'"'Grants[?Grantee.URI==`http://acs.amazonaws.com/groups/global/AllUsers` && Permission==`READ`]'"'"' --output text) ]]; then echo {} ; fi'
 
-#
+#Update bucket policy from json file
+aws s3api put-bucket-policy --bucket MyBucket --policy file://policy.json
 ```
 
 
@@ -362,22 +300,18 @@ aws ec2 describe-key-pairs
 
 # create a keypair
 # http://docs.aws.amazon.com/cli/latest/reference/ec2/create-key-pair.html
-aws ec2 create-key-pair \
-    --key-name <value> --output text
+aws ec2 create-key-pair --key-name <value> --output text
 
 # create a new local private / public keypair, using RSA 4096-bit
 ssh-keygen -t rsa -b 4096
 
 # import an existing keypair
 # http://docs.aws.amazon.com/cli/latest/reference/ec2/import-key-pair.html
-aws ec2 import-key-pair \
-    --key-name keyname_test \
-    --public-key-material file:///home/apollo/id_rsa.pub
+aws ec2 import-key-pair --key-name keyname_test --public-key-material file:///home/apollo/id_rsa.pub
 
 # delete a keypair
 # http://docs.aws.amazon.com/cli/latest/reference/ec2/delete-key-pair.html
-aws ec2 delete-key-pair \
-    --key-name <value>
+aws ec2 delete-key-pair --key-name <value>
 
 # list all instances (running, and not running)
 # http://docs.aws.amazon.com/cli/latest/reference/ec2/describe-instances.html
@@ -388,33 +322,24 @@ aws ec2 describe-instances --filters Name=instance-state-name,Values=running
 
 # create a new instance
 # http://docs.aws.amazon.com/cli/latest/reference/ec2/run-instances.html
-aws ec2 run-instances \
-    --image-id ami-f0e7d19a \   
-    --instance-type t2.micro \
-    --security-group-ids sg-00000000 \
-    --dry-run
+aws ec2 run-instances --image-id ami-f0e7d19a --instance-type t2.micro --security-group-ids sg-00000000 --dry-run
 
 # start an instance
 aws ec2 start-instances --instance-ids i-12345678c
 
 # stop an instance
 # http://docs.aws.amazon.com/cli/latest/reference/ec2/terminate-instances.html
-aws ec2 terminate-instances \
-    --instance-ids <instance_id>
+aws ec2 terminate-instances --instance-ids <instance_id>
 
 # list status of all instances
 # http://docs.aws.amazon.com/cli/latest/reference/ec2/describe-instance-status.html
 aws ec2 describe-instance-status
 
 # list status of a specific instance
-aws ec2 describe-instance-status \
-    --instance-ids <instance_id>
+aws ec2 describe-instance-status --instance-ids <instance_id>
     
 # list all running instance, Name tag and Public IP Address
-aws ec2 describe-instances \
-  --filters Name=instance-state-name,Values=running \
-  --query 'Reservations[].Instances[].[PublicIpAddress, Tags[?Key==`Name`].Value | [0] ]' \
-  --output text | sort -k2
+aws ec2 describe-instances --filters Name=instance-state-name,Values=running --query 'Reservations[].Instances[].[PublicIpAddress, Tags[?Key==`Name`].Value | [0] ]' --output text | sort -k2
 ```
 
 <br/><br/><br/>
@@ -429,43 +354,26 @@ http://docs.aws.amazon.com/cli/latest/reference/ec2/index.html
 aws ec2 describe-security-groups
 
 # create a security group
-aws ec2 create-security-group \
-    --vpc-id vpc-1a2b3c4d \
-    --group-name web-access \
-    --description "web access"
+aws ec2 create-security-group --vpc-id vpc-1a2b3c4d  --group-name web-access --description "web access"
 
 # list details about a securty group
-aws ec2 describe-security-groups \
-    --group-id sg-0000000
+aws ec2 describe-security-groups --group-id sg-0000000
 
 # open port 80, for everyone
-aws ec2 authorize-security-group-ingress \
-    --group-id sg-0000000 \
-    --protocol tcp \
-    --port 80 \
-    --cidr 0.0.0.0/24
+aws ec2 authorize-security-group-ingress --group-id sg-0000000 --protocol tcp --port 80 --cidr 0.0.0.0/24
 
 # get my public ip
 my_ip=$(dig +short myip.opendns.com @resolver1.opendns.com);
 echo $my_ip
 
 # open port 22, just for my ip
-aws ec2 authorize-security-group-ingress \
-    --group-id sg-0000000 \
-    --protocol tcp \
-    --port 80 \
-    --cidr $my_ip/24
+aws ec2 authorize-security-group-ingress --group-id sg-0000000 --protocol tcp --port 80 --cidr $my_ip/24
 
 # remove a firewall rule from a group
-aws ec2 revoke-security-group-ingress \
-    --group-id sg-0000000 \
-    --protocol tcp \
-    --port 80 \
-    --cidr 0.0.0.0/24
+aws ec2 revoke-security-group-ingress --group-id sg-0000000 --protocol tcp --port 80 --cidr 0.0.0.0/24
 
 # delete a security group
-aws ec2 delete-security-group \
-    --group-id sg-00000000
+aws ec2 delete-security-group --group-id sg-00000000
 ```
 
 
@@ -477,9 +385,7 @@ https://docs.aws.amazon.com/cli/latest/reference/ec2/describe-images.html
 
 ```shell
 # list all private AMI's, ImageId and Name tags
-aws ec2 describe-images --filter "Name=is-public,Values=false" \
-    --query 'Images[].[ImageId, Name]' \
-    --output text | sort -k2
+aws ec2 describe-images --filter "Name=is-public,Values=false" --query 'Images[].[ImageId, Name]' --output text | sort -k2
 
 # delete an AMI, by ImageId
 aws ec2 deregister-image --image-id ami-00000000
@@ -497,15 +403,11 @@ aws ec2 describe-tags
 
 # add a tag to an instance
 # http://docs.aws.amazon.com/cli/latest/reference/ec2/create-tags.html
-aws ec2 create-tags \
-    --resources "ami-1a2b3c4d" \
-    --tags Key=name,Value=debian
+aws ec2 create-tags --resources "ami-1a2b3c4d" --tags Key=name,Value=debian
 
 # delete a tag on an instance
 # http://docs.aws.amazon.com/cli/latest/reference/ec2/delete-tags.html
-aws ec2 delete-tags \
-    --resources "ami-1a2b3c4d" \
-    --tags Key=Name,Value=
+aws ec2 delete-tags --resources "ami-1a2b3c4d" --tags Key=Name,Value=
 ```
 <br/><br/><br/>
 
@@ -519,37 +421,28 @@ http://docs.aws.amazon.com/cli/latest/reference/cloudtrail/
 aws cloudtrail describe-trails
 
 # create a new trail
-aws cloudtrail create-subscription \
-    --name awslog \
-    --s3-new-bucket awslog2016
+aws cloudtrail create-subscription --name awslog --s3-new-bucket awslog2016
 
 # list the names of all trails
 aws cloudtrail describe-trails --output text | cut -f 8
 
 # get the status of a trail
-aws cloudtrail get-trail-status \
-    --name awslog
+aws cloudtrail get-trail-status --name awslog
 
 # delete a trail
-aws cloudtrail delete-trail \
-    --name awslog
+aws cloudtrail delete-trail --name awslog
 
 # delete the S3 bucket of a trail
 aws s3 rb s3://awslog2016 --force
 
 # add tags to a trail, up to 10 tags
-aws cloudtrail add-tags \
-    --resource-id awslog \
-    --tags-list "Key=log-type,Value=all"
+aws cloudtrail add-tags --resource-id awslog --tags-list "Key=log-type,Value=all"
 
 # list the tags of a trail
-aws cloudtrail list-tags \
-    --resource-id-list 
+aws cloudtrail list-tags --resource-id-list 
 
 # remove a tag from a trail
-aws cloudtrail remove-tags \
-    --resource-id awslog \
-    --tags-list "Key=log-type,Value=all"
+aws cloudtrail remove-tags --resource-id awslog --tags-list "Key=log-type,Value=all"
 ```
 <br/><br/><br/>
 
@@ -567,8 +460,7 @@ http://docs.aws.amazon.com/cli/latest/reference/logs/index.html#cli-aws-logs
 ##### create a group
 http://docs.aws.amazon.com/cli/latest/reference/logs/create-log-group.html
 ```shell
-aws logs create-log-group \
-	--log-group-name "DefaultGroup"
+aws logs create-log-group --log-group-name "DefaultGroup"
 ```
 
 ##### list all log groups
@@ -576,15 +468,13 @@ http://docs.aws.amazon.com/cli/latest/reference/logs/describe-log-groups.html
 ```shell
 aws logs describe-log-groups
 
-aws logs describe-log-groups \
-	--log-group-name-prefix "Default"
+aws logs describe-log-groups --log-group-name-prefix "Default"
 ```
 
 ##### delete a group
 http://docs.aws.amazon.com/cli/latest/reference/logs/delete-log-group.html
 ```shell
-aws logs delete-log-group \
-	--log-group-name "DefaultGroup"
+aws logs delete-log-group --log-group-name "DefaultGroup"
 ```
 
 
@@ -598,23 +488,17 @@ aws logs delete-log-group \
 
 # create a log stream
 # http://docs.aws.amazon.com/cli/latest/reference/logs/create-log-stream.html
-aws logs create-log-stream \
-	--log-group-name "DefaultGroup" \
-	--log-stream-name "syslog"
+aws logs create-log-stream --log-group-name "DefaultGroup" --log-stream-name "syslog"
 
 # list details on a log stream
 # http://docs.aws.amazon.com/cli/latest/reference/logs/describe-log-streams.html
-aws logs describe-log-streams \
-	--log-group-name "syslog"
+aws logs describe-log-streams --log-group-name "syslog"
 
-aws logs describe-log-streams \
-	--log-stream-name-prefix "syslog"
+aws logs describe-log-streams --log-stream-name-prefix "syslog"
 
 # delete a log stream
 # http://docs.aws.amazon.com/cli/latest/reference/logs/delete-log-stream.html
-aws logs delete-log-stream \
-	--log-group-name "DefaultGroup" \
-	--log-stream-name "Default Stream"
+aws logs delete-log-stream --log-group-name "DefaultGroup" --log-stream-name "Default Stream"
 ```
 
 

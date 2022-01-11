@@ -1,7 +1,8 @@
 #!/bin/bash
 
-echo -n "Bucket name: "
-read bucket
+#echo -n "Bucket name: "
+#read bucket
+bucket=$1
 
 aws s3 rm s3://$bucket --recursive  #deletes the contents of the bucket (empty)
 
