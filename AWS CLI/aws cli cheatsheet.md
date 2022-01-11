@@ -350,6 +350,42 @@ aws ec2 describe-instances --instance-id <InstanceId>
 
 
 ```
+
+## EC2 Termination and Cleanup
+```shell
+## Describe instance information
+aws ec2 describe-instance-status --instance-ids <instance_id>
+ws ec2 describe-instances --instance-ids <instance_id>
+
+## Terminate EC2
+aws ec2 terminate-instances --instance-ids <instance_id>
+
+## Detach IGW from VPC
+aws ec2 detach-internet-gateway --internet-gateway-id igw-0d0fb496b3EXAMPLE --vpc-id <vpc-id>
+
+## Delete IGW
+aws ec2 delete-internet-gateway --internet-gateway-id <igw-id>
+
+## Delete subnet
+aws ec2 delete-subnet --subnet-id <subnet-id>
+
+## Delete Route Table
+aws ec2 disassociate-route-table --association-id <associate-id>   ////optional
+aws ec2 delete-route-table --route-table-id <rt-id>
+
+## Delete SG
+aws ec2 delete-security-group --group-id <sg-id>
+
+## Delete key-pair
+aws ec2 delete-key-pair --key-name <keypair-name>
+
+## Delete VPC
+aws ec2 delete-vpc --vpc-id <vpc-id>
+aws ec2 delete-security-group --group-name <group-name>
+
+```
+
+
 ## keypairs and Instances
 
 http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
