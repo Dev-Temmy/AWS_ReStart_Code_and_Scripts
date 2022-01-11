@@ -14,3 +14,5 @@ aws s3 sync . s3://$bucket --acl public-read
 aws s3 ls
 
 curl http://$bucket.s3-website.ap-southeast-2.amazonaws.com
+
+start http://momandpopcafebakery.s3-website-ap-southeast-2.amazonaws.com
