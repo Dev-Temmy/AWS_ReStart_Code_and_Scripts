@@ -375,13 +375,14 @@ aws ec2 delete-route-table --route-table-id <rt-id>
 
 ## Delete SG
 aws ec2 delete-security-group --group-id <sg-id>
+aws ec2 delete-security-group --group-name <group-name>
 
 ## Delete key-pair
 aws ec2 delete-key-pair --key-name <keypair-name>
 
 ## Delete VPC
 aws ec2 delete-vpc --vpc-id <vpc-id>
-aws ec2 delete-security-group --group-name <group-name>
+
 
 ```
 
