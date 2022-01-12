@@ -186,6 +186,31 @@ aws iam detach-group-policy --group-name FullAdmins --policy-arn arn:aws:iam::aw
 
 # delete a group
 aws iam delete-group --group-name FullAdmins
+
+# list all security groups
+aws ec2 describe-security-groups
+
+# create a security group
+aws ec2 create-security-group --vpc-id vpc-1a2b3c4d  --group-name web-access --description "web access"
+
+# list details about a securty group
+aws ec2 describe-security-groups --group-id sg-0000000
+
+# open port 80, for everyone
+aws ec2 authorize-security-group-ingress --group-id sg-0000000 --protocol tcp --port 80 --cidr 0.0.0.0/24
+
+# get my public ip
+my_ip=$(dig +short myip.opendns.com @resolver1.opendns.com);
+echo $my_ip
+
+# open port 22, just for my ip
+aws ec2 authorize-security-group-ingress --group-id sg-0000000 --protocol tcp --port 80 --cidr $my_ip/24
+
+# remove a firewall rule from a group
+aws ec2 revoke-security-group-ingress --group-id sg-0000000 --protocol tcp --port 80 --cidr 0.0.0.0/24
+
+# delete a security group
+aws ec2 delete-security-group --group-id sg-00000000
 ```
 <br/><br/><br/>
 
@@ -385,7 +410,7 @@ aws ec2 delete-vpc --vpc-id <vpc-id>
 
 
 ```
-
+<br/>
 
 ## keypairs and Instances
 
@@ -448,41 +473,7 @@ aws ec2 describe-instance-status --instance-ids <instance_id>
 aws ec2 describe-instances --filters Name=instance-state-name,Values=running --query 'Reservations[].Instances[].[PublicIpAddress, Tags[?Key==`Name`].Value | [0] ]' --output text | sort -k2
 ```
 
-<br/><br/><br/>
-
-
-### Security Groups
-
-http://docs.aws.amazon.com/cli/latest/reference/ec2/index.html
-
-```shell
-# list all security groups
-aws ec2 describe-security-groups
-
-# create a security group
-aws ec2 create-security-group --vpc-id vpc-1a2b3c4d  --group-name web-access --description "web access"
-
-# list details about a securty group
-aws ec2 describe-security-groups --group-id sg-0000000
-
-# open port 80, for everyone
-aws ec2 authorize-security-group-ingress --group-id sg-0000000 --protocol tcp --port 80 --cidr 0.0.0.0/24
-
-# get my public ip
-my_ip=$(dig +short myip.opendns.com @resolver1.opendns.com);
-echo $my_ip
-
-# open port 22, just for my ip
-aws ec2 authorize-security-group-ingress --group-id sg-0000000 --protocol tcp --port 80 --cidr $my_ip/24
-
-# remove a firewall rule from a group
-aws ec2 revoke-security-group-ingress --group-id sg-0000000 --protocol tcp --port 80 --cidr 0.0.0.0/24
-
-# delete a security group
-aws ec2 delete-security-group --group-id sg-00000000
-```
-
-
+<br/>
 
 
 ## Images
@@ -499,8 +490,6 @@ aws ec2 deregister-image --image-id ami-00000000
 ```
 
 
-
-
 ### Tags
 ```shell
 # list the tags of an instance
@@ -515,7 +504,42 @@ aws ec2 create-tags --resources "ami-1a2b3c4d" --tags Key=name,Value=debian
 # http://docs.aws.amazon.com/cli/latest/reference/ec2/delete-tags.html
 aws ec2 delete-tags --resources "ami-1a2b3c4d" --tags Key=Name,Value=
 ```
-<br/><br/><br/>
+<br/>
+
+
+### Elastic Load Balancer
+
+http://docs.aws.amazon.com/cli/latest/reference/ec2/index.html
+
+```shell
+# ELBv2 help
+aws elbv2 help
+
+# Create VPC , Subnets and Security Group [Refer to the Create EC2 using CLI section]
+##--> Note [vpc-id] [sg-id] [subnet-ids(2)] [instance ids(2+)]
+
+# To Create a Load Balancer:
+## Step 1: Create ELB [Note the ELB ARN]
+aws elbv2 create-load-balancer --name my-load-balancer --subnets <subnet-id1> <subnet-id2> --security-groups <sg-id>
+
+## Step 2: Create Target Group [Note the TG ARN]
+aws elbv2 create-target-group --name my-targets --protocol HTTP --port 80 --vpc-id <vpc-id>
+
+## Step 3: Register Targets
+aws elbv2 register-targets --target-group-arn targetgroup-arn --targets <instance_id 1> <instance_id 2>
+
+## Step 4: Create Listener [Note LN ARN]
+aws elbv2 create-listener --load-balancer-arn loadbalancer-arn --protocol HTTP --port 80 --default-actions Type=forward,TargetGroupArn=targetgroup-arn
+
+## Step 5: Verify Healh of Targets
+aws elbv2 describe-target-health --target-group-arn targetgroup-arn
+
+# To Clean up
+aws elbv2 delete-load-balancer --load-balancer-arn loadbalancer-arn
+aws elbv2 delete-target-group --target-group-arn targetgroup-arn
+aws elb delete-load-balancer-listeners --load-balancer-name my-load-balancer --load-balancer-ports 80
+```
+<br/>
 
 ## Cloudtrail - Logging and Auditing
 
@@ -550,9 +574,7 @@ aws cloudtrail list-tags --resource-id-list
 # remove a tag from a trail
 aws cloudtrail remove-tags --resource-id awslog --tags-list "Key=log-type,Value=all"
 ```
-<br/><br/><br/>
-
-
+<br/>
 
 ## Cloudwatch
 
