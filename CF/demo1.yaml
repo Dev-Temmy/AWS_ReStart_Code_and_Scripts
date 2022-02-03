@@ -1,0 +1,8 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "My Simple S3 CF Stack"
+Resources: 
+  s3Bucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      AccessControl: Private
+      BucketName: "mycfs3bucketrestart2021"

@@ -1,0 +1,3 @@
+aws cloudformation create-stack --stack-name firststack --template-body file://D:\GitHub\Goanna-restart\CF\demo1.yaml --on-failure DO_NOTHING
+
+aws cloudformation delete-stack --stack-name secondstack
