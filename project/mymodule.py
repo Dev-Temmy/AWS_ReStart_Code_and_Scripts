@@ -20,8 +20,20 @@ def create_dict():
 def sort(dicts):
     for key in sorted(dicts.keys()):
         print("%s :: %s"%(key,dicts[key]))
-        
-        
-#Task 1: Define a function that deletes an element from the dictionary 
+#Task 1: Define a function that deletes an element from the dictionary
+
+#del sort[0]
+#print (sort)
+def delete_element(dict):
+    key = read("Which element do you want to delete")
+    del dict[int(key)]
+
+
 #Task 2: Define a function that updates an element in a dictionary
+def update_element(dict):
+    key = read("do you want to update this dictionary?")
+    value = read("What is the new value? ")
+    #dict.values({key:value})
+    dict[int(key)] = value #for updating element
+    #dict[int(key)]
 #Task 3: use the above two functions in the dictionaryOps main()
